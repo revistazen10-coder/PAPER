@@ -236,41 +236,89 @@
 \usepackage{hyperref}
 \usepackage{url}
 
-% --- METADADOS COMPATÍVEIS COM REVISTAZEN --- % Estrutura: Nome | Instituição | ORCID % O parser da RevistaZen detecta padrões "Nome | Instituição | ORCID" \hypersetup{ colorlinks=true, linkcolor=blue, urlcolor=cyan, pdftitle={Tutorial de Integração Automática: Do Advanced Scientific Paper Generator para a RevistaZen}, pdfauthor={Carlos de Andrade, Alexandre}, pdfsubject={Este tutorial detalha o processo de integração 100% compatível entre o "Advanced Scientific Paper Generator" e a plataforma de publicação "RevistaZen". O guia explica como os metadados (título, autor, resumo, palavras-chave) são automaticamente embutidos no arquivo PDF durante a compilação do LaTeX. Ao fazer o upload deste PDF na RevistaZen, a plataforma lê esses metadados e preenche automaticamente os formulários de submissão, agilizando o processo de publicação e obtenção de um DOI permanente.}, pdfkeywords={Integração Automática, LaTeX, Metadados PDF, RevistaZen, Advanced Scientific Paper Generator, Publicação Científica, DOI} }
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{url}
 
-% Configurações da página \geometry{a4paper, margin=1in} \pagestyle{fancy} \fancyhf{} \rhead{Tutorial de Integração} \lhead{Advanced Scientific Paper Generator} \cfoot{\thepage}
+% --- METADADOS COMPATÍVEIS COM REVISTAZEN ---
+% Estrutura: Nome | Instituição | ORCID
+% O parser da RevistaZen detecta padrões "Nome | Instituição | ORCID"
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=cyan,
+  pdftitle={Tutorial de Integração Automática: Do Advanced Scientific Paper Generator para a RevistaZen},
+  pdfauthor={Carlos de Andrade, Alexandre},
+  pdfsubject={Este tutorial detalha o processo de integração 100\% compatível entre o "Advanced Scientific Paper Generator" e a plataforma de publicação "RevistaZen". O guia explica como os metadados (título, autor, resumo, palavras-chave) são automaticamente embutidos no arquivo PDF durante a compilação do LaTeX. Ao fazer o upload deste PDF na RevistaZen, a plataforma lê esses metadados e preenche automaticamente os formulários de submissão, agilizando o processo de publicação e obtenção de um DOI permanente.},
+  pdfkeywords={Integração Automática, LaTeX, Metadados PDF, RevistaZen, Advanced Scientific Paper Generator, Publicação Científica, DOI}
+}
 
-\title{\textbf{Tutorial de Integração Automática:}\Do Advanced Scientific Paper Generator para a RevistaZen}
+% Configurações da página
+\geometry{a4paper, margin=1in}
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Tutorial de Integração}
+\lhead{Advanced Scientific Paper Generator}
+\cfoot{\thepage}
 
-\author{ SÉRGIO DE ANDRADE, PAULO\[4pt] \small Faculdade de Guarulhos (FG), Guarulhos, São Paulo\ \small \texttt{andradepsa@gmail.com}\ \small ORCID: \url{https://orcid.org/0009-0004-2555-3178} }
+\title{\textbf{Tutorial de Integração Automática:}\\Do Advanced Scientific Paper Generator para a RevistaZen}
+
+\author{
+  SÉRGIO DE ANDRADE, PAULO\\[4pt]
+  \small Faculdade de Guarulhos (FG), Guarulhos, São Paulo\\
+  \small \texttt{andradepsa@gmail.com}\\
+  \small ORCID: \url{https://orcid.org/0009-0004-2555-3178}
+}
 
 \date{\today}
 
-\begin{document} \maketitle \thispagestyle{empty}
+\begin{document}
+\maketitle
+\thispagestyle{empty}
 
-\begin{abstract} \noindent Este tutorial detalha o processo de integração 100% compatível entre o "Advanced Scientific Paper Generator" e a plataforma de publicação "RevistaZen". O guia explica como os metadados (título, autor, resumo, palavras-chave) são automaticamente embutidos no arquivo PDF durante a compilação do LaTeX. Ao fazer o upload deste PDF na RevistaZen, a plataforma lê esses metadados e preenche automaticamente os formulários de submissão, agilizando o processo de publicação e obtenção de um DOI permanente. \end{abstract}
+\begin{abstract}
+\noindent Este tutorial detalha o processo de integração 100\% compatível entre o "Advanced Scientific Paper Generator" e a plataforma de publicação "RevistaZen". O guia explica como os metadados (título, autor, resumo, palavras-chave) são automaticamente embutidos no arquivo PDF durante a compilação do LaTeX. Ao fazer o upload deste PDF na RevistaZen, a plataforma lê esses metadados e preenche automaticamente os formulários de submissão, agilizando o processo de publicação e obtenção de um DOI permanente.
+\end{abstract}
 
-\vspace{1cm} \noindent \textbf{Palavras-chave:} Integração Automática, LaTeX, Metadados PDF, RevistaZen, Advanced Scientific Paper Generator, Publicação Científica, DOI. \clearpage
+\vspace{1cm}
+\noindent \textbf{Palavras-chave:} Integração Automática, LaTeX, Metadados PDF, RevistaZen, Advanced Scientific Paper Generator, Publicação Científica, DOI.
+\clearpage
 
-\tableofcontents \clearpage
+\tableofcontents
+\clearpage
 
-\section{Introdução} Bem-vindo a este guia prático! O \textbf{Advanced Scientific Paper Generator} foi projetado para funcionar em perfeita harmonia com a \textbf{RevistaZen}. Esta compatibilidade de 100% permite um fluxo de trabalho contínuo, automatizado e livre de erros, desde a criação do artigo até a obtenção de um DOI permanente.
+\section{Introdução}
+Bem-vindo a este guia prático! O \textbf{Advanced Scientific Paper Generator} foi projetado para funcionar em perfeita harmonia com a \textbf{RevistaZen}. Esta compatibilidade de 100\% permite um fluxo de trabalho contínuo, automatizado e livre de erros, desde a criação do artigo até a obtenção de um DOI permanente.
 
-\section{Pré-requisitos} \begin{itemize} \item Código-fonte LaTeX gerado pelo Advanced Scientific Paper Generator. \item Compilador LaTeX (Overleaf, TeX Live, MiKTeX ou MacTeX). \item Acesso à plataforma \textbf{RevistaZen}. \end{itemize}
+\section{Pré-requisitos}
+\begin{itemize}
+\item Código-fonte LaTeX gerado pelo Advanced Scientific Paper Generator.
+\item Compilador LaTeX (Overleaf, TeX Live, MiKTeX ou MacTeX).
+\item Acesso à plataforma \textbf{RevistaZen}.
+\end{itemize}
 
-\section{Guia Passo a Passo} \subsection{Passo 1: Gerar o código LaTeX} Use o gerador para criar o artigo e copie o código da seção “Final LaTeX Source”.
+\section{Guia Passo a Passo}
+\subsection{Passo 1: Gerar o código LaTeX}
+Use o gerador para criar o artigo e copie o código da seção “Final LaTeX Source”.
 
-\subsection{Passo 2: Compilar o PDF} Cole o código em seu compilador LaTeX e compile para gerar o arquivo PDF com metadados embutidos.
+\subsection{Passo 2: Compilar o PDF}
+Cole o código em seu compilador LaTeX e compile para gerar o arquivo PDF com metadados embutidos.
 
-\subsection{Passo 3: Fazer upload na RevistaZen} Envie o PDF gerado para a plataforma RevistaZen.
+\subsection{Passo 3: Fazer upload na RevistaZen}
+Envie o PDF gerado para a plataforma RevistaZen.  
+Os campos **Nome**, **Instituição/Afiliação** e **ORCID** serão extraídos automaticamente dos metadados.
 
-Os campos Nome, Instituição/Afiliação e ORCID serão extraídos automaticamente dos metadados.
-
-\section{Conclusão} A integração entre o \textbf{Advanced Scientific Paper Generator} e a \textbf{RevistaZen} representa um avanço na automação da publicação científica.
-
+\section{Conclusão}
+A integração entre o \textbf{Advanced Scientific Paper Generator} e a \textbf{RevistaZen} representa um avanço na automação da publicação científica.  
 Os metadados incorporados tornam o processo mais rápido, preciso e confiável.
 
 \end{document}
+
     </textarea>
     <div style="position:absolute; top:8px; right:8px;">
       <button id="copyBtn" style="background:#0366d6; color:#fff; border:0; padding:0.45rem 0.7rem; border-radius:6px; cursor:pointer; font-weight:600;">Copiar</button>
