@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RevistaZen - DOI Gratuito</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; color: #333; line-height: 1.6; }
+        .container { max-width: 800px; margin: 0 auto; padding: 0 20px; }
+        
+        header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 0; }
+        .logo { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .logo-text { font-size: 1.8rem; font-weight: 700; }
+        
+        .page-section { display: none; }
+        .page-section.active { display: block; }
+        
+        .hero { padding: 3rem 0; text-align: center; background: white; }
+        .hero h1 { font-size: 2.5rem; margin-bottom: 1rem; color: #2d3748; }
+        .cta-button { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; padding: 1rem 2rem; border-radius: 50px; 
+            border: none; font-weight: 700; cursor: pointer; margin-top: 1rem; 
+            font-size: 1.1rem;
+        }
+        
+        .upload-tool { padding: 2rem 0; min-height: 100vh; }
+        .card { 
+            background: white; border-radius: 12px; padding: 24px; 
+            margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
+        }
+        
+        .info-box {
+            background: #eff6ff; border-left: 4px solid #3b82f6; 
+            padding: 16px; border-radius: 8px; margin-bottom: 20px;
+        }
+        .info-box h3 { color: #1e40af; margin-bottom: 8px; font-size: 16px; }
+        
+        .doi-benefits {
+            background: #f0fdf4; border-left: 4px solid #10b981;
+            padding: 16px; border-radius: 8px; margin-bottom: 20px;
+        }
+        .doi-benefits h3 { color: #166534; margin-bottom: 8px; font-size: 16px; }
+        .benefit-item { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+        .benefit-item i { color: #10b981; }
+        
+        .drop-zone { 
+            border: 3px dashed #cbd5e0; border-radius: 12px; padding: 40px 20px; 
+            text-align: center; cursor: pointer; background: #f8fafc; 
+            transition: all 0.3s;
+        }
+        .drop-zone:hover { border-color: #667eea; background: #e0e7ff; }
+        .upload-icon { font-size: 3rem; color: #667eea; margin-bottom: 1rem; }
+        
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; color: #374151; }
+        input[type="text"], textarea { 
+            width: 100%; padding: 12px; border: 2px solid #e5e7eb; 
+            border-radius: 8px; font-size: 14px; 
+        }
+        input:focus, textarea:focus { 
+            outline: none; border-color: #667eea; 
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); 
+        }
+        
+        .author-item { 
+            background: #f9fafb; padding: 16px; border-radius: 8px; 
+            margin-bottom: 12px; border: 1px solid #e5e7eb; 
+        }
+        .author-fixed { 
+            background: #f0f9ff; padding: 16px; border-radius: 8px; 
+            margin-bottom: 12px; border: 2px solid #a6ce39;
+        }
+        .btn { 
+            width: 100%; padding: 16px; border: none; border-radius: 12px; 
+            font-weight: 600; cursor: pointer; background: #667eea; color: white; 
+            font-size: 16px;
+        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .status { padding: 16px; border-radius: 12px; margin-top: 20px; }
+        .status-success { background: #f0fdf4; border: 2px solid #86efac; color: #166534; }
+        .status-error { background: #fef2f2; border: 2px solid #fca5a5; color: #991b1b; }
+        .status-info { background: #eff6ff; border: 2px solid #93c5fd; color: #1e40af; }
+        
+        .spinner { 
+            border: 3px solid rgba(255,255,255,0.3); border-top-color: white; 
+            border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; 
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .hidden { display: none !important; }
+        .help-text { font-size: 12px; color: #6b7280; margin-top: 4px; }
+        
+        .author-row { display: flex; gap: 10px; margin-top: 8px; }
+        .btn-small { 
+            padding: 8px 16px; background: #ef4444; color: white; border: none; 
+            border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;
+        }
+        .btn-add { 
+            background: none; border: none; color: #667eea; cursor: pointer; 
+            font-weight: 600; margin-top: 8px; padding: 8px 0;
+        }
+        .orcid-badge {
+            display: inline-flex; align-items: center; gap: 6px; background: #a6ce39; 
+            color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; 
+            font-weight: 600; margin-left: 8px;
+        }
+        
+        .features-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem; margin-top: 2rem;
+        }
+        .feature-card {
+            background: white; border-radius: 12px; padding: 1.5rem;
+            text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .feature-icon {
+            font-size: 2.5rem; margin-bottom: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo" onclick="showPage('home')">
+                <div class="logo-text">RevistaZen</div>
+            </div>
+        </div>
+    </header>
+
+    <div id="homePage" class="page-section active">
+        <section class="hero">
+            <div class="container">
+                <h1>🎓 DOI Gratuito para Artigos Científicos</h1>
+                <p>Obtenha um identificador DOI permanente para sua pesquisa através da RevistaZen</p>
+                <button class="cta-button" onclick="showPage('upload')">
+                    <i class="fas fa-rocket"></i> Publicar Meu Artigo
+                </button>
+            </div>
+        </section>
+
+        <section style="padding: 3rem 0; background: #f8fafc;">
+            <div class="container">
+                <div class="card">
+                    <h2 style="text-align: center; margin-bottom: 2rem;">✨ Por que usar a RevistaZen?</h2>
+                    
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-fingerprint"></i>
+                            </div>
+                            <h3>DOI Permanente</h3>
+                            <p>Identificador único e permanente para seu artigo científico</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <h3>Reconhecimento Acadêmico</h3>
+                            <p>Fortaleça seu currículo Lattes e perfil de pesquisador</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h3>Certificado RevistaZen</h3>
+                            <p>ORCID institucional garante autenticidade da publicação</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <h3>Processo Rápido</h3>
+                            <p>DOI gerado em minutos, sem burocracia</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="doi-benefits">
+                    <h3>🎯 Benefícios do DOI para sua Pesquisa:</h3>
+                    <div class="benefit-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span><strong>Citação Permanente</strong> - Seu artigo pode ser citado para sempre</span>
+                    </div>
+                    <div class="benefit-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span><strong>Visibilidade Global</strong> - Indexado no Google Scholar e bases internacionais</span>
+                    </div>
+                    <div class="benefit-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span><strong>Credibilidade Acadêmica</strong> - Reconhecimento como pesquisador publicado</span>
+                    </div>
+                    <div class="benefit-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span><strong>Preservação Digital</strong> - Seu trabalho preservado permanentemente no Zenodo/CERN</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="uploadPage" class="page-section">
+        <section class="upload-tool">
+            <div class="container">
+                <!-- Informações sobre o processo -->
+                <div class="card">
+                    <h2>🚀 Publicação com RevistaZen</h2>
+                    
+                    <div class="info-box">
+                        <h3>📖 Como funciona:</h3>
+                        <p><strong>1.</strong> Faça upload do PDF do seu artigo</p>
+                        <p><strong>2.</strong> Revise os metadados extraídos automaticamente</p>
+                        <p><strong>3.</strong> Clique em publicar e receba seu DOI permanente</p>
+                        <p><strong>4.</strong> Use o DOI para citar em currículos, Lattes e publicações</p>
+                    </div>
+                    
+                    <div class="doi-benefits">
+                        <h3>🎓 O que você recebe:</h3>
+                        <p>• <strong>DOI Permanente</strong> - Identificador único internacional</p>
+                        <p>• <strong>Certificado RevistaZen</strong> - ORCID institucional de autenticidade</p>
+                        <p>• <strong>Indexação Automática</strong> - No Google Scholar e bases acadêmicas</p>
+                        <p>• <strong>Preservação Digital</strong> - No repositório Zenodo/CERN</p>
+                    </div>
+                </div>
+
+                <!-- Upload Section -->
+                <div class="card">
+                    <h2>📤 Upload do Artigo</h2>
+                    <p style="color: #718096; margin-bottom: 20px;">Faça upload do PDF do seu artigo LaTeX</p>
+                    
+                    <div id="dropZone" class="drop-zone">
+                        <input type="file" id="pdfFile" accept=".pdf" class="hidden">
+                        <div id="uploadPrompt">
+                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                            <p style="font-weight: 600; color: #374151; margin-bottom: 8px;">
+                                Clique ou arraste seu PDF aqui
+                            </p>
+                            <p style="color: #6b7280; font-size: 14px;">
+                                Suporte otimizado para artigos LaTeX
+                            </p>
+                        </div>
+                        <div id="loadingPrompt" class="hidden">
+                            <div class="spinner" style="width: 40px; height: 40px; margin: 0 auto 16px;"></div>
+                            <p style="font-weight: 600; color: #667eea;">Processando PDF...</p>
+                            <p style="color: #6b7280; font-size: 14px; margin-top: 8px;">
+                                Extraindo metadados automaticamente
+                            </p>
+                        </div>
+                        <div id="successPrompt" class="hidden">
+                            <i class="fas fa-check-circle" style="font-size: 40px; margin-bottom: 16px; color: #10b981;"></i>
+                            <p id="fileName" style="font-weight: 600; color: #10b981;"></p>
+                            <p style="color: #6b7280; font-size: 14px; margin-top: 8px;">
+                                Clique para trocar o arquivo
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metadata Form -->
+                <div id="metadataForm" class="card hidden">
+                    <h2>📝 Metadados do Artigo</h2>
+                    <p style="color: #718096; margin-bottom: 20px;">Revise e ajuste as informações extraídas do seu artigo</p>
+                    
+                    <div class="form-group">
+                        <label for="title">Título do Artigo *</label>
+                        <input type="text" id="title" placeholder="Título completo do artigo">
+                        <p class="help-text">Este será o título permanente do seu DOI</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Resumo/Abstract *</label>
+                        <textarea id="description" rows="4" placeholder="Resumo ou abstract do artigo"></textarea>
+                        <p class="help-text">Resumo que aparecerá nas buscas acadêmicas</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>👥 Autores do Artigo 
+                            <span class="orcid-badge">
+                                <i class="fab fa-orcid"></i> RevistaZen: 0009-0007-6299-2008
+                            </span>
+                        </label>
+                        
+                        <div class="info-box" style="margin-bottom: 16px;">
+                            <h3>💡 Informação sobre Autores:</h3>
+                            <p><strong>Formato recomendado:</strong> "Sobrenome, Nome" (ex: Silva, João)</p>
+                            <p><strong>ORCID pessoal:</strong> Opcional, mas recomendado para maior credibilidade</p>
+                        </div>
+                        
+                        <!-- AUTORES DO PDF (editáveis) -->
+                        <div id="authorsList"></div>
+                        
+                        <!-- AUTOR FIXO RevistaZen (NÃO editável) -->
+                        <div class="author-fixed">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <div>
+                                    <strong>RevistaZen</strong>
+                                    <span style="color: #6b7280; font-size: 14px; margin-left: 8px;">
+                                        - Plataforma de Publicação Científica
+                                    </span>
+                                </div>
+                                <span class="orcid-badge">
+                                    <i class="fab fa-orcid"></i> 0009-0007-6299-2008
+                                </span>
+                            </div>
+                            <div style="color: #a6ce39; font-size: 12px; margin-top: 4px;">
+                                <i class="fas fa-lock"></i> ORCID institucional fixo - Garante autenticidade da publicação
+                            </div>
+                        </div>
+                        
+                        <button class="btn-add" onclick="addAuthor()">
+                            <i class="fas fa-plus"></i> Adicionar outro autor
+                        </button>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="keywords">Palavras-chave</label>
+                        <input type="text" id="keywords" placeholder="palavra1, palavra2, palavra3">
+                        <p class="help-text">Separe por vírgula - Melhora a descoberta do seu artigo</p>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="card">
+                    <div class="info-box" style="background: #f0fdf4; border-left-color: #10b981; margin-bottom: 16px;">
+                        <h3 style="color: #166534;">✅ Pronto para Publicar!</h3>
+                        <p style="color: #166534; margin: 0;">
+                            Após a publicação, você receberá um <strong>DOI permanente</strong> que poderá usar em:
+                            currículos Lattes, projetos de pesquisa, citações acadêmicas e muito mais!
+                        </p>
+                    </div>
+                    
+                    <button id="submitBtn" class="btn" onclick="submitToZenodo()" disabled>
+                        <span id="submitBtnText">🚀 Gerar DOI Permanente</span>
+                    </button>
+                </div>
+
+                <!-- Status Area -->
+                <div id="statusArea"></div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // PDF.js setup
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        
+        // Global variables
+        let selectedFile = null;
+        let extractedFullText = '';
+        
+        // ORCID FIXO da RevistaZen (NUNCA altera)
+        const REVISTAZEN_ORCID = '0009-0007-6299-2008';
+        
+        // Autores do PDF (editáveis)
+        let authors = [{
+            name: 'Sérgio de Andrade, Paulo', // Formato Zenodo
+            affiliation: 'Faculdade de Guarulhos (FG), Guarulhos, São Paulo',
+            orcid: '0009-0004-2555-3178'
+        }];
+
+        // Page Navigation
+        function showPage(pageName) {
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(pageName + 'Page').classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Setup drag and drop
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('pdfFile');
+
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#667eea';
+            dropZone.style.background = '#e0e7ff';
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.borderColor = '#cbd5e0';
+            dropZone.style.background = '#f8fafc';
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#cbd5e0';
+            dropZone.style.background = '#f8fafc';
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        // Handle file selection
+        async function handleFile(file) {
+            if (file.type !== 'application/pdf') {
+                showStatus('❌ Por favor, selecione um arquivo PDF válido.', 'error');
+                return;
+            }
+
+            selectedFile = file;
+            
+            // Update UI
+            document.getElementById('uploadPrompt').classList.add('hidden');
+            document.getElementById('successPrompt').classList.add('hidden');
+            document.getElementById('loadingPrompt').classList.remove('hidden');
+
+            // Extract text from PDF
+            await extractPDFText(file);
+        }
+
+        // Extract text from PDF using PDF.js
+        async function extractPDFText(file) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+                
+                // Try to get metadata from PDF properties
+                const metadata = await pdf.getMetadata();
+                let hasMetadata = false;
+                
+                if (metadata && metadata.info) {
+                    const info = metadata.info;
+                    
+                    // Title from PDF metadata
+                    if (info.Title && info.Title.trim().length > 0) {
+                        document.getElementById('title').value = info.Title.trim();
+                        hasMetadata = true;
+                    }
+                    
+                    // Description/Abstract from PDF Subject
+                    if (info.Subject && info.Subject.trim().length > 0) {
+                        document.getElementById('description').value = info.Subject.trim();
+                        hasMetadata = true;
+                    }
+                    
+                    // Keywords from PDF metadata
+                    if (info.Keywords && info.Keywords.trim().length > 0) {
+                        document.getElementById('keywords').value = info.Keywords.trim();
+                        hasMetadata = true;
+                    }
+                    
+                    // Author from PDF metadata - USA O FORMATO QUE VEM DO PDF
+                    if (info.Author && info.Author.trim().length > 0) {
+                        authors[0].name = info.Author.trim(); // MANTÉM O FORMATO ORIGINAL
+                        hasMetadata = true;
+                    }
+                }
+                
+                // If we got metadata, we're mostly done!
+                if (hasMetadata) {
+                    showStatus('✅ Metadados extraídos do PDF com sucesso! Verifique e ajuste se necessário.', 'success');
+                } else {
+                    // Fallback: Extract from text content
+                    let fullText = '';
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const textContent = await page.getTextContent();
+                        const pageText = textContent.items.map(item => item.str).join(' ');
+                        fullText += pageText + '\n';
+                    }
+                    
+                    extractedFullText = fullText;
+                    autoFillMetadata(fullText, file.name);
+                    showStatus('✅ PDF processado com sucesso! Verifique os metadados extraídos.', 'success');
+                }
+                
+                renderAuthors();
+                
+                // Show form and enable submit
+                document.getElementById('metadataForm').classList.remove('hidden');
+                document.getElementById('submitBtn').disabled = false;
+
+                // Update UI
+                document.getElementById('loadingPrompt').classList.add('hidden');
+                document.getElementById('successPrompt').classList.remove('hidden');
+                document.getElementById('fileName').textContent = `✅ ${file.name}`;
+
+            } catch (error) {
+                console.error('Error extracting PDF:', error);
+                
+                document.getElementById('metadataForm').classList.remove('hidden');
+                document.getElementById('submitBtn').disabled = false;
+                renderAuthors();
+                
+                document.getElementById('loadingPrompt').classList.add('hidden');
+                document.getElementById('successPrompt').classList.remove('hidden');
+                document.getElementById('fileName').textContent = `✅ ${file.name}`;
+
+                showStatus('⚠️ PDF carregado com sucesso. Por favor, preencha os metadados manualmente.', 'info');
+            }
+        }
+
+        // Auto-fill metadata from text - USA SEMPRE O FORMATO ORIGINAL
+        function autoFillMetadata(text, filename) {
+            text = text.replace(/^[\s\S]*?(springer|nature|latex|template)[\s\S]*?\n/im, '');
+            
+            const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            
+            // TITLE EXTRACTION
+            let potentialTitle = '';
+            
+            for (let i = 0; i < Math.min(lines.length, 20); i++) {
+                const line = lines[i];
+                
+                if (line.match(/springer|nature|latex|template|preprint|draft/i)) continue;
+                if (line.match(/[@]/i)) continue;
+                if (line.match(/orcid|lattes|id:/i)) continue;
+                if (line.match(/^graduate|^faculdade|^university/i)) continue;
+                if (line.length < 30) continue;
+                if (line.length > 200) continue;
+                if (line.match(/^\d+\s/)) continue;
+                if (line.split(/\s+/).length < 5) continue;
+                if (line.match(/^[A-ZÀ-Ú\s]+$/) && line.split(/\s+/).length <= 6) continue;
+                
+                potentialTitle = line;
+                break;
+            }
+            
+            if (!potentialTitle) {
+                potentialTitle = filename.replace('.pdf', '').replace(/_/g, ' ');
+            }
+            
+            document.getElementById('title').value = potentialTitle.trim();
+
+            // ABSTRACT EXTRACTION
+            let abstract = '';
+            const abstractIndex = text.search(/\babstract\b/i);
+            if (abstractIndex !== -1) {
+                const afterAbstract = text.substring(abstractIndex + 8);
+                const endMatch = afterAbstract.search(/\b(keywords?|palavras-chave|introduction|introdução|1\s+introduction)\b/i);
+                
+                if (endMatch !== -1) {
+                    abstract = afterAbstract.substring(0, endMatch);
+                } else {
+                    abstract = afterAbstract.substring(0, 2000);
+                }
+                
+                abstract = abstract.replace(/\s+/g, ' ').replace(/\n/g, ' ').trim();
+                document.getElementById('description').value = abstract;
+            }
+
+            // KEYWORDS EXTRACTION
+            const keywordsMatch = text.match(/keywords?[:\s]+(.+?)(?:\n\n|introduction|1\s+introduction|\d+\s+\w+)/is);
+            if (keywordsMatch) {
+                let keywords = keywordsMatch[1]
+                    .replace(/\n/g, ' ')
+                    .replace(/\s+/g, ' ')
+                    .replace(/[;.]/g, ',')
+                    .trim();
+                
+                keywords = keywords.replace(/,+/g, ',').replace(/,\s*$/, '');
+                document.getElementById('keywords').value = keywords;
+            }
+
+            // AUTHOR EXTRACTION - MANTÉM O FORMATO ORIGINAL
+            const titleIndex = text.indexOf(potentialTitle);
+            const abstractStartIndex = text.search(/\babstract\b/i);
+            
+            if (titleIndex !== -1 && abstractStartIndex !== -1) {
+                const betweenTitleAndAbstract = text.substring(titleIndex + potentialTitle.length, abstractStartIndex);
+                const betweenLines = betweenTitleAndAbstract.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                
+                let authorName = '';
+                let affiliation = '';
+                let orcid = '';
+                
+                for (let i = 0; i < betweenLines.length; i++) {
+                    const line = betweenLines[i];
+                    
+                    // USA O FORMATO ORIGINAL - NÃO ALTERA
+                    if (!authorName && line.match(/^[A-ZÀ-Ú][A-ZÀ-Úa-zà-ú\s,]+$/)) {
+                        authorName = line; // MANTÉM O FORMATO ORIGINAL
+                        continue;
+                    }
+                    
+                    if (authorName && !affiliation && line.match(/faculdade|university|instituto|college|guarulhos|são paulo/i)) {
+                        affiliation = line.replace(/@.*$/, '').replace(/lattes.*$/i, '').replace(/orcid.*$/i, '').trim();
+                        continue;
+                    }
+                    
+                    const orcidMatch = line.match(/orcid[:\s]+([0-9-]+)/i);
+                    if (orcidMatch) {
+                        orcid = orcidMatch[1];
+                    }
+                }
+                
+                if (authorName) {
+                    authors = [{
+                        name: authorName, // FORMATO ORIGINAL
+                        affiliation: affiliation || '',
+                        orcid: orcid || ''
+                    }];
+                }
+            }
+
+            renderAuthors();
+        }
+
+        // Render authors list
+        function renderAuthors() {
+            const container = document.getElementById('authorsList');
+            container.innerHTML = '';
+            
+            // MOSTRA APENAS AUTORES DO PDF (editáveis)
+            authors.forEach((author, index) => {
+                const authorDiv = document.createElement('div');
+                authorDiv.className = 'author-item';
+                authorDiv.innerHTML = `
+                    <input type="text" value="${author.name}" onchange="updateAuthor(${index}, 'name', this.value)" 
+                           placeholder="Nome (formato: Sobrenome, Nome)" 
+                           style="width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; margin-bottom: 8px;">
+                    <input type="text" value="${author.affiliation}" onchange="updateAuthor(${index}, 'affiliation', this.value)" 
+                           placeholder="Instituição/Afiliação" 
+                           style="width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; margin-bottom: 8px;">
+                    <div class="author-row">
+                        <input type="text" value="${author.orcid}" onchange="updateAuthor(${index}, 'orcid', this.value)" 
+                               placeholder="ORCID pessoal (opcional)" 
+                               style="flex: 1; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px;">
+                        ${authors.length > 1 ? `<button onclick="removeAuthor(${index})" class="btn-small">Remover</button>` : ''}
+                    </div>
+                `;
+                container.appendChild(authorDiv);
+            });
+        }
+
+        function addAuthor() {
+            authors.push({ name: '', affiliation: '', orcid: '' });
+            renderAuthors();
+        }
+
+        function updateAuthor(index, field, value) {
+            authors[index][field] = value;
+        }
+
+        function removeAuthor(index) {
+            if (authors.length > 1) {
+                authors.splice(index, 1);
+                renderAuthors();
+            }
+        }
+
+        // Submit to Zenodo - CORREÇÃO: DOIS AUTORES SEPARADOS NO CAMPO CREATORS
+        async function submitToZenodo() {
+            const token = "cYYoVEoLqiIZDyeZ5A88SCxhlbvDXwmT7Tma1aQnYVAWeGtqlWp0KsSbWTHC";
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const keywords = document.getElementById('keywords').value;
+
+            if (!selectedFile) {
+                showStatus('❌ Por favor, selecione um arquivo PDF.', 'error');
+                return;
+            }
+
+            if (!title || !description) {
+                showStatus('❌ Por favor, preencha o título e a descrição do artigo.', 'error');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            const submitBtnText = document.getElementById('submitBtnText');
+            submitBtn.disabled = true;
+            submitBtnText.innerHTML = '<div class="spinner"></div> Gerando DOI...';
+
+            const baseUrl = 'https://zenodo.org/api';
+
+            try {
+                showStatus('📝 Criando depósito oficial no Zenodo...', 'info');
+                const createResponse = await fetch(`${baseUrl}/deposit/depositions`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                });
+
+                if (!createResponse.ok) {
+                    throw new Error(`Erro ao criar depósito (${createResponse.status})`);
+                }
+
+                const deposit = await createResponse.json();
+
+                showStatus('📤 Fazendo upload do arquivo PDF...', 'info');
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+
+                const uploadResponse = await fetch(`${baseUrl}/deposit/depositions/${deposit.id}/files`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                if (!uploadResponse.ok) {
+                    throw new Error(`Erro ao fazer upload (${uploadResponse.status})`);
+                }
+
+                showStatus('📋 Registrando metadados e ORCIDs...', 'info');
+                const keywordsArray = keywords.split(',').map(k => k.trim()).filter(k => k.length > 0);
+                
+                // ✅ CORREÇÃO: DOIS AUTORES SEPARADOS NO CAMPO CREATORS
+                const allCreators = [
+                    // Autores do PDF (editáveis)
+                    ...authors.filter(a => a.name.trim().length > 0).map(author => ({
+                        name: author.name,
+                        affiliation: author.affiliation,
+                        orcid: author.orcid || undefined // ORCID pessoal (opcional)
+                    })),
+                    
+                    // Autor FIXO RevistaZen (NUNCA altera)
+                    {
+                        name: "RevistaZen",
+                        affiliation: "Plataforma de Publicação Científica",
+                        orcid: REVISTAZEN_ORCID // ORCID FIXO
+                    }
+                ];
+                
+                const metadata = {
+                    metadata: {
+                        title: title,
+                        upload_type: 'publication',
+                        publication_type: 'article',
+                        description: description,
+                        creators: allCreators,
+                        keywords: keywordsArray.length > 0 ? keywordsArray : undefined
+                    }
+                };
+
+                const metadataResponse = await fetch(`${baseUrl}/deposit/depositions/${deposit.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(metadata)
+                });
+
+                if (!metadataResponse.ok) {
+                    throw new Error(`Erro ao atualizar metadados (${metadataResponse.status})`);
+                }
+
+                showStatus('🎯 Publicando artigo e gerando DOI permanente...', 'info');
+                const publishResponse = await fetch(`${baseUrl}/deposit/depositions/${deposit.id}/actions/publish`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!publishResponse.ok) {
+                    throw new Error(`Erro ao publicar (${publishResponse.status})`);
+                }
+
+                const published = await publishResponse.json();
+                const zenodoLink = `https://zenodo.org/records/${deposit.id}`;
+
+                let successMsg = `
+                    <div style="text-align: center;">
+                        <h3 style="color: #10b981; font-size: 1.8rem; margin-bottom: 1rem;">🎉 Parabéns! Artigo Publicado!</h3>
+                        
+                        <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); padding: 24px; border-radius: 16px; border: 3px solid #10b981; margin: 20px 0;">
+                            <p style="font-size: 1.2rem; color: #166534; font-weight: 700; margin-bottom: 16px;">🎯 SEU DOI PERMANENTE</p>
+                            <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                                <a href="https://doi.org/${published.doi}" target="_blank" 
+                                   style="color: #667eea; word-break: break-all; font-family: 'Courier New', monospace; font-size: 1.3rem; font-weight: bold; display: block;">
+                                   ${published.doi}
+                                </a>
+                            </div>
+                            <p style="margin-top: 16px; color: #166534; font-weight: 600;">
+                                ✅ Use este DOI para citar em currículos Lattes, projetos e publicações!
+                            </p>
+                        </div>
+                        
+                        <div style="background: white; padding: 20px; border-radius: 12px; border: 2px solid #93c5fd; margin: 20px 0;">
+                            <p style="margin-bottom: 12px; font-weight: 600; color: #1e40af;">
+                                <i class="fas fa-link"></i> Link da Publicação:
+                            </p>
+                            <a href="${zenodoLink}" target="_blank" style="color: #667eea; word-break: break-all; font-size: 1rem;">
+                                ${zenodoLink}
+                            </a>
+                            <p style="margin-top: 12px; color: #4b5563; font-size: 0.9rem;">
+                                📊 Acesse para ver estatísticas de visualizações e downloads
+                            </p>
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); padding: 20px; border-radius: 12px; border: 2px solid #3b82f6; margin-top: 24px;">
+                            <p style="color: #1e40af; font-weight: 700; font-size: 1.2rem; margin: 0 0 12px 0;">
+                                ✨ PUBLICAÇÃO OFICIAL REGISTRADA
+                            </p>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px;">
+                                <div style="text-align: left;">
+                                    <p style="color: #4b5563; font-size: 0.9rem; margin: 4px 0;">
+                                        <i class="fas fa-check-circle" style="color: #10b981;"></i> DOI Permanente
+                                    </p>
+                                    <p style="color: #4b5563; font-size: 0.9rem; margin: 4px 0;">
+                                        <i class="fas fa-check-circle" style="color: #10b981;"></i> Indexado Globalmente
+                                    </p>
+                                </div>
+                                <div style="text-align: left;">
+                                    <p style="color: #4b5563; font-size: 0.9rem; margin: 4px 0;">
+                                        <i class="fab fa-orcid" style="color: #a6ce39;"></i> ORCID RevistaZen
+                                    </p>
+                                    <p style="color: #4b5563; font-size: 0.9rem; margin: 4px 0;">
+                                        <i class="fas fa-check-circle" style="color: #10b981;"></i> Preservação CERN
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                showStatus(successMsg, 'success');
+                submitBtnText.innerHTML = '<i class="fas fa-check-circle"></i> DOI Gerado!';
+
+            } catch (error) {
+                console.error('Error:', error);
+                showStatus(`❌ Erro na publicação: ${error.message}`, 'error');
+                submitBtn.disabled = false;
+                submitBtnText.textContent = '🚀 Gerar DOI Permanente';
+            }
+        }
+
+        // Show status message
+        function showStatus(message, type) {
+            const statusArea = document.getElementById('statusArea');
+            const classes = {
+                success: 'status-success',
+                error: 'status-error',
+                info: 'status-info'
+            };
+
+            statusArea.innerHTML = `
+                <div class="status ${classes[type]}">
+                    ${message}
+                </div>
+            `;
+            
+            statusArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Initialize
+        renderAuthors();
+    </script>
+</body>
+</html>
